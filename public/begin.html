@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <style>
+    </style>
+</head>
+<body>
+    <div id="main">
+        <div id="header">
+            <ul id="nav">
+                <li><a href="/">Admin</a></li>
+                <li><a href="/begin">Start</a></li>
+            </ul>
+        </div>
+
+        <div id="content">
+          <h2>Begin Test</h2>
+            <div class="userdisplay">
+              <br><br>
+              <div class="enterusername">
+                <label for="lname">Please enter a nickname:</label>
+                <input type="text" id="uname" name="uname"> <a id="sameuname" style="visibility:hidden;color:red;">Nickname already existed!</a><br><br>
+                <a>Instruction: Participation in this experiment will involve engaging with a software program for approximately 90 minutes. During this session, the goal is to earn as many points as you can. You will earn points by clicking on the shapes displayed on the computer screen. You will see a number of shapes on the screen, including a square, triangle, circle, or diamond. Clicking on some shapes will result in points earned, but not necessarily all shapes. You may also expect to see changes in the background color intermittently. At the end of the session, you will receive an electronic gift card with a value of $10 for participating. In addition, you may also exchange the points you earn during the session for a gift card of a larger value.</a>
+                <br><br>
+                <button onclick="startExperiment()">Start</button>
+              </div>
+            </div>
+        </div>
+
+        <div id="footer">
+        </div>
+    </div>
+    <script>
+    function startExperiment(){
+      uname=document.getElementById("uname").value;
+
+      if (uname==''){element=document.getElementById("sameuname");element.innerHTML="Username can't be empty";element.style.visibility="visible";return;}
+      $.post("/api/checkname",
+          {uname:uname},
+          function(data,status){
+          check=parseInt(data);
+          if(check){
+            //console.log(check);
+            setCookie("uname",uname,1);
+            window.location.href="/experiment";
+          }
+          else{
+            element=document.getElementById("sameuname");element.innerHTML="Username already existed!";element.style.visibility="visible";
+          }
+          });
+      }
+      function setCookie(cname,cvalue,exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    let expires = "expires=" + d.toGMTString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
+    </script>
+</body>
+</html>

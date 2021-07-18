@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+
+    <div id="main">
+        <div id="header">
+            <ul id="nav">
+                <li><a href="">Admin</a></li>
+                <li><a href="./begintreatment.html">Treatment</a></li>
+                <li><a href="./begincontrol.html">Control</a></li>
+            </ul>
+        </div>
+
+        <div id="content">
+            <div class="content-scores">
+              <p id="timer"></p>
+              <p id="phase"></p>
+              <p id="demo">Scores: 0</p>
+              <p id="bonus" style="visibility:hidden;font-size:25px;color:red">+1</p>
+            </div>
+
+            <div class="content-box">
+            </div>
+        </div>
+
+        <div id="footer">
+        </div>
+    </div>
+
+    <script>
+    var exp =1
+    var sequence=[];
+    var timer=15*60;
+    var count = 0;
+    var rightshapes=[];
+    var ph = 0;
+    var time_score = 15*60;
+    var t_click = 0;
+    var img_click = '';
+    var img_bf1 = '';
+    var img_bf = '';
+    var variableinterval=[8,9,10,11,12];
+    var time_scorelist=[];
+    var interval=0;
+      var context=["blue","yellow","purple","orange"];
+    box=document.getElementsByClassName("content-box")[0];
+    var x = setInterval(function() {
+    document.getElementById("timer").innerHTML=timer;
+    if (exp == 1) {
+      switch(timer){
+        case 15*60: phase1(); break;
+        case 13*60: breakpage();break;
+        case 12.5*60: phase2();break;
+        case 10.5*60: breakpage();break;
+        case 10*60: phase3();break;
+        case 8*60: breakpage();break;
+        case 7.5*60: phase4();break;
+        case 5.5*60: breakpage();break;
+        case 5*60: phase5();break;
+        case 3*60: breakpage();break;
+        case 2.5*60: phase6();break;
+        case 0.5*60: breakpage();break;}
+
+    }
+    if (exp == 2) {
+      switch(timer){
+        case 15*60: phase12(); break;
+        case 13*60: breakpage();break;
+        case 12.5*60: phase22();break;
+        case 10.5*60: breakpage();break;
+        case 10*60: phase32();break;
+        case 8*60: breakpage();break;
+        case 7.5*60: phase42();break;
+        case 5.5*60: breakpage();break;
+        case 5*60: phase52();break;
+        case 3*60: breakpage();break;
+        case 2.5*60: phase62();break;
+        case 0.5*60: breakpage();break;}
+
+    }
+    if (exp == 3) {
+      switch(timer){
+        case 15*60: phase13(); break;
+        case 13*60: breakpage();break;
+        case 12.5*60: phase23();break;
+        case 10.5*60: breakpage();break;
+        case 10*60: phase33();break;
+        case 8*60: breakpage();break;
+        case 7.5*60: phase43();break;
+        case 5.5*60: breakpage();break;
+        case 5*60: phase53();break;
+        case 3*60: breakpage();break;
+        case 2.5*60: phase63();break;
+        case 0.5*60: breakpage();break;}
+    }
+      timer-=1;
+      if(timer<0){
+        timer = 15*60
+        exp = exp +1
+      }
+      if (exp==4){
+        clearInterval(x);
+      }},50);
+
+    function breakpage(){
+      box.innerHTML="The program will resume momentarily";
+      box.style.backgroundColor="white";
+      time_score = 15*60;
+      t_click = 0;
+      img_click = '';
+      img_bf = '';
+      interval=0;
+      time_scorelist=[];
+    }
+    function phase(name,tag_img,right_shapes,phase) {
+      document.getElementById("phase").innerHTML= name
+      conttent = ''
+      for (element of tag_img) {
+        conttent = conttent + '<div class="item" >'+ element + '</div>'
+
+      }
+      box.innerHTML=conttent
+      rightshapes = right_shapes
+      ph = phase}
+
+    sq = '<img onclick="userclick(this)" src="./assets/img/square.png" alt="sq" style="width:60px" onmouseover="enlarge(this)" onmouseout="normal(this)">';
+    tr = '<img onclick="userclick(this)" src="./assets/img/triangle.png" alt="tr" style="width:60px" onmouseover="enlarge(this)" onmouseout="normal(this)"  >';
+    di = '<img onclick="userclick(this)" src="./assets/img/diamond.png" alt="di" style="width:60px " onmouseover="enlarge(this)" onmouseout="normal(this)">';
+    ci = '<img onclick="userclick(this)" src="./assets/img/circle.png" alt="ci" style="width:60px" onmouseover="enlarge(this)" onmouseout="normal(this)">';
+
+    function phase1() {
+      box.style.backgroundColor=context[0];
+      phase("Baseline",[sq,'','','','','','',''],["sq"],1)
+    }
+    function phase2() {
+      box.style.backgroundColor=context[0];
+      phase("Differential reinforcement",[sq,'',tr,di,'','',ci,''],["di","ci","tr"],2)
+    }
+    function phase3() {
+      box.style.backgroundColor=context[0];
+      phase("Test of resurgence",[sq,'',tr,di,'','',ci,''],[],3)
+    }
+    function phase4(){
+      box.style.backgroundColor=context[0];
+      phase1();
+      ph = 4;
+    }
+    function phase5(){
+      box.style.backgroundColor=context[0];
+      phase2();
+      ph = 5;
+    }
+    function phase6(){
+      phase2();
+      ph = 6;
+      document.getElementById("phase").innerHTML="Test of renewal";
+      box.style.backgroundColor=context[1];
+    }
+
+// treat 2
+    function phase12() {
+      phase("Baseline",[sq,'','','','','','',''],["sq"],1);
+      var time_backround = 120;
+      var x_ = setInterval(function() {
+          switch(time_backround){
+              case  120:box.style.backgroundColor = context[0];break;
+              case  80:box.style.backgroundColor =context[1];break;
+              case  40:box.style.backgroundColor =context[2];break;}
+          time_backround-=1;
+          if(time_backround==0){clearInterval(x_);}  },222);
+    }
+    function phase22() {
+
+      phase("Differential reinforcement",[sq,'','',tr,'','','',''],["tr"],2);
+      var time_backround = 120;
+      var x_ = setInterval(function() {
+          switch(time_backround){
+              case  120:box.style.backgroundColor = context[0];break;
+              case  80:box.style.backgroundColor =context[1];break;
+              case  40:box.style.backgroundColor =context[2];break;}
+          time_backround-=1;
+          if(time_backround==0){clearInterval(x_);}  },222);
+    }
+    function phase32() {
+      phase("Test of resurgence",[sq,'','',tr,'','','',''],[],3)
+      var time_backround = 120;
+      var x_ = setInterval(function() {
+          switch(time_backround){
+              case  120:box.style.backgroundColor = context[0];break;
+              case  80:box.style.backgroundColor =context[1];break;
+              case  40:box.style.backgroundColor =context[2];break;}
+          time_backround-=1;
+          if(time_backround==0){clearInterval(x_);}  },222);
+    }
+    function phase42(){
+
+      phase12();
+      ph = 4;
+    }
+    function phase52(){
+      phase22();
+      ph = 5;
+    }
+    function phase62(){
+      phase("Differential reinforcement",[sq,'','',tr,'','','',''],["tr"],2);
+      box.style.backgroundColor = context[3];
+
+    }
+
+
+
+// treat 3
+
+
+    function phase13() {
+
+      phase("Baseline",[sq,'','','','','','',''],["sq"],1);
+      var time_backround = 120;
+      var x_ = setInterval(function() {
+          switch(time_backround){
+              case  120:box.style.backgroundColor = context[0];break;
+              case  80:box.style.backgroundColor =context[1];break;
+              case  40:box.style.backgroundColor =context[2];break;}
+          time_backround-=1;
+          if(time_backround==0){clearInterval(x_);}  },222);
+    }
+    function phase23() {
+
+      phase("Differential reinforcement",[sq,'',tr,di,'','',ci,''],["di","ci","tr"],2);
+      var time_backround = 120;
+      var x_ = setInterval(function() {
+          switch(time_backround){
+              case  120:box.style.backgroundColor = context[0];break;
+              case  80:box.style.backgroundColor =context[1];break;
+              case  40:box.style.backgroundColor =context[2];break;}
+          time_backround-=1;
+          if(time_backround==0){clearInterval(x_);}  },222);
+    }
+    function phase33() {
+
+      phase("Test of resurgence",[sq,'',tr,di,'','',ci,''],[],3);
+      var time_backround = 120;
+      var x_ = setInterval(function() {
+          switch(time_backround){
+              case  120:box.style.backgroundColor = context[0];break;
+              case  80:box.style.backgroundColor =context[1];break;
+              case  40:box.style.backgroundColor =context[2];break;}
+          time_backround-=1;
+          if(time_backround==0){clearInterval(x_);}  },222);
+    }
+    function phase43(){
+
+      phase13();
+
+      ph = 4;
+    }
+    function phase53(){
+
+      phase23();
+      ph = 5;
+    }
+    function phase63(){
+
+      ph = 6;
+      document.getElementById("phase").innerHTML="Test of renewal";
+      box.style.backgroundColor=context[3];
+      phase("Differential reinforcement",[sq,'',tr,di,'','',ci,''],["di","ci","tr"],2);
+    }
+
+
+
+
+        function userclick(image) {
+          sequence.push(image.alt);
+          // console.log(sequence);
+          t_click=timer;
+          img_click = image.alt;
+          if (rightshapes.includes(image.alt)){
+            if (ph == 1 ){
+              if ((time_score-t_click) >= interval ) {
+                time_score = t_click;
+                  time_scorelist.push(time_score);
+                    console.log("Average: " +averageinterval(time_scorelist))
+                    interval=variableinterval[getRandomInt(variableinterval.length)];
+                reward();
+              }
+
+            }
+
+            if (ph == 2 ) {
+
+              if ( img_click != img_bf && img_click!=img_bf1){
+                var temp=img_bf;
+                if (img_bf!=img_click){
+                  img_bf=img_click;
+                  img_bf1=temp;
+                }
+                reward();
+              }
+            }
+
+            if (ph == 4 ){
+              if (time_score == 0) {
+                time_score=t_click;
+                console.log(time_score);
+                interval=variableinterval[getRandomInt(variableinterval.length)];
+                reward();
+              }
+              if ((time_score - t_click) >= interval ) {
+                time_score = t_click;
+                console.log(time_score);
+                interval=variableinterval[getRandomInt(variableinterval.length)];
+                reward();
+              }
+            }
+
+            if (ph == 5 ) {
+
+              if ( img_click != img_bf && img_click!=img_bf1){
+                var temp=img_bf;
+                if (img_bf!=img_click){
+                  img_bf=img_click;
+                  img_bf1=temp;
+                }
+                reward()
+              }
+            }
+
+            if (ph == 6 ) {
+
+              if ( img_click != img_bf && img_click!=img_bf1){
+                var temp=img_bf;
+                if (img_bf!=img_click){
+                  img_bf=img_click;
+                  img_bf1=temp;
+                }
+                reward()
+              }
+            }
+
+          }
+
+        }
+        function reward(){
+
+          rewardSound = new Audio("bell2.mp3");
+          rewardSound.play();
+          count += 1;
+          document.getElementById("demo").innerHTML = "Scores: " + count;
+          document.getElementById("bonus").style.visibility="visible";
+          $("#bonus").show(0, function() {
+              $("#bonus").fadeOut();});
+        }
+        function enlarge(x){
+              x.style.transition="0.3s";
+              x.style.width = "72px";
+              x.style.height = "96px";
+            }
+        function normal(x){
+              x.style.transition="0.3s";
+              x.style.width = "60px";
+              x.style.height = "80px";
+            }
+        function getRandomInt(max) {
+              return Math.floor(Math.random() * max);
+        }
+        function averageinterval(arr){
+          inter=[];
+          if (arr.length<=1){return 0;}
+          for (let i=0;i<arr.length-1;i++){
+            inter.push(arr[i]-arr[i+1]);
+          }
+          sum=0;
+          console.log("Intervals: " + inter);
+          for (let i=0;i<inter.length;i++){
+            sum+=inter[i];
+          }
+          return sum/inter.length
+
+        }
+
+    </script>
+</body>
+</html>

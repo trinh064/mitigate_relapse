@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+    table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+ td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+    </style>
+</head>
+<body>
+    <div id="main">
+        <div id="header">
+            <ul id="nav">
+                <li><a href="/">Admin</a></li>
+                <li><a href="/begin">Start</a></li>
+            </ul>
+        </div>
+
+        <div id="admincontent">
+          <h2>Welcome admin</h2>
+            <div id="admindisplay">
+              <br><br>
+              <div style="text-align:right"><a id="rrate1" >Lag 2 Rate from exp1: </a>
+              <br><br><a id="rrate3">Lag 2 Rate from exp3: </a><br><br>
+              </div>
+              <a id="mode">Current Group-Experiment: Can't connect database</a>
+              <br><br>
+              <a>Set Mode:</a>
+              <button onclick="setMode(1)">Treatment</button>
+              <button onclick="setMode(0)">Control</button>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <label >Set Experiment:</label>
+                <select id="setexp" onchange="setExp()">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+              <br><br>
+              <a>Data Table </a><br><br>
+              <label for="shape">Shape:</label>
+                <select name="shape" id="shape">
+                  <option value="sq">square</option>
+                  <option value="tr">triangle</option>
+                  <option value="di">diamond</option>
+                  <option value="ci">circle</option>
+                </select>
+                <label for="group">Group:</label>
+                  <select name="group" id="group">
+                    <option value="1">treatment</option>
+                    <option value="0">control</option>
+                  </select>
+
+                  <label for="exp">Experiment:</label>
+                    <select name="exp" id="exp">
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                    </select>
+
+              <button onclick="update()">Update</button><br><br>
+              <div style="height:400px;overflow:auto;">
+              <table id="datatable">
+
+              </table>
+                <table id="chart_container">
+                  <tr>
+                    <td><canvas id="myCanvas1" ></canvas></td>
+                    <td><canvas id="myCanvas2" ></canvas></td>
+                    <td><canvas id="myCanvas3" ></canvas></td>
+                  </tr>
+                  <tr>
+                    <td><canvas id="myCanvas4" ></canvas></td>
+                    <td><canvas id="myCanvas5" ></canvas></td>
+                    <td><canvas id="myCanvas6" ></canvas></td>
+                  </tr>
+
+              </table>
+            </div>
+            <br><br>
+            <a href="/api/exportraw">Export Raw Data</a>
+            <a onclick="exportTableToCSV()" href="/">Download Above Table</a>
+            <br><br>
+            <table>
+
+              <tr>
+                <td>
+                    <div>
+                        <label>Delete a user:</label>
+                        <input type="text" id="uname" name="uname">
+                        <button onclick="delUser()">Delete</button><br><br>
+                        <label>Delete all users</label>
+                        <button onclick="delAll()">Delete All</button><a id="delallsucc" style="visibility:hidden;color:red;">Delete Successfully</a>
+                        <br><br><br><br>
+                          <div class="pw-form">
+                            <a>Change your password</a><br><br>
+                            <label for="opass">Old Password:</label>
+                            <input type="password" id="opass" name="opass"><br><br>
+                            <label for="lname">New Password:</label>
+                            <input type="password" id="npass" name="npass"><br><br>
+                            <button onclick="changePass()">Change Password</button>
+                    </div>
+                </td>
+                <td >
+                  <div style="height:300px;overflow:auto;">
+                  <table id="scoreboard" >
+                  </table>
+                </div>
+                </td>
+            </tr>
+            </div>
+
+          </table>
+          </div>
+        </div>
+
+        <div id="footer">
+        </div>
+    </div>
+    <script>
+    getMode();
+
+        $.get("/api/getRate1",
+            {},
+            function(data,status){
+
+            document.getElementById("rrate1").innerHTML+=(1/parseFloat(data)).toFixed(2).toString()+" pts/s";
+            });
+        $.get("/api/getRate3",
+                {},
+                function(data,status){
+                  document.getElementById("rrate3").innerHTML+=(1/parseFloat(data)).toFixed(2).toString()+" pts/s";
+                });
+
+    function setMode(x){
+      $.post("/api/setMode",
+          {mode:x},
+          function(data,status){
+          getMode();
+          });
+    }
+
+    function setExp(){
+      expno=document.getElementById('setexp').value;
+      $.post("/api/setExp",
+          {experimentnumber:expno},
+          function(data,status){
+          rs=parseInt(data);
+          mode='';
+          if(Math.floor(rs/10)==1){mode+="Treatment-";}else {mode+="Control-";}
+          mode+=(rs%10).toString();
+            document.getElementById("mode").innerHTML="Current Group-Experiment: "+mode;
+          });
+         }
+
+
+        function getMode(){
+    $.get("/api/getMode",
+        {},
+        function(data,status){
+          rs=parseInt(data);
+          console.log(rs);
+          mode='';
+          if(Math.floor(rs/10)==1){mode+="Treatment-";}else {mode+="Control-";}
+          mode+=(rs%10).toString();
+            document.getElementById("mode").innerHTML="Current Group-Experiment: "+mode;
+        });}
+    proData();
+    function delAll(){
+      $.post("/api/delAll",{},function(data,status){
+        console.log(status);
+        if(status=="success")
+        {document.getElementById("delallsucc").style.visibility="visible";}
+      });
+    }
+    function delUser(){
+      uname=document.getElementById('uname').value;
+      console.log(uname);
+      $.post("/api/delUser",{uname:uname},function(data,status){
+        console.log(status);
+        window.location.replace=data;
+      });
+    }
+    function update(){
+      window.location.reload();
+    }
+    async function proData(){
+      $.get("/api/proData",
+          {},
+          function(data,status){
+            obj=JSON.parse(data);
+            console.log(obj);
+            sh=document.getElementById("shape").value;
+            gr=document.getElementById("group").value;
+            exp=document.getElementById("exp").value;
+            sc_obj=obj["scoreboard"];
+            ph_obj=obj["root"][sh][gr][exp];
+            t_obj=obj["root"][sh]["1"][exp];
+            c_obj=obj["root"][sh]["0"][exp];
+            doc=`<tr>
+              <th>Session</th>
+              <th>Freq Phase 1</th>
+              <th>Freq Phase 2</th>
+              <th>Freq Phase 3</th>
+              <th>Freq Phase 4</th>
+              <th>Freq Phase 5</th>
+              <th>Freq Phase 6</th>
+            </tr>`;
+            let s=1;
+            for (s=1;s<=6;s+=1){
+              f1=ph_obj["1"][s.toString()];
+              f2=ph_obj["2"][s.toString()];
+              f3=ph_obj["3"][s.toString()];
+              f4=ph_obj["4"][s.toString()];
+              f5=ph_obj["5"][s.toString()];
+              f6=ph_obj["6"][s.toString()];
+
+              newrow=`<tr>
+                <td>${s}</td>
+                <td>${f1}</td>
+                <td>${f2}</td>
+                <td>${f3}</td>
+                <td>${f4}</td>
+                <td>${f5}</td>
+                <td>${f6}</td>
+              </tr>`
+              doc+=newrow;
+            }
+
+            scoretbl=`<tr>
+              <th>User</th>
+              <th>Score</th>
+            </tr>`;
+            let i=0
+            names=Object.keys(sc_obj);
+            console.log(names)
+            for (i=0;i<names.length;i++){
+              name=names[i];
+              sc=sc_obj[name];
+              newrow=`<tr>
+                <td>${name}</td>
+                <td>${sc}</td>
+              </tr>`
+              scoretbl+=newrow;
+            }
+
+              document.getElementById("scoreboard").innerHTML=scoretbl;
+              document.getElementById("datatable").innerHTML=doc;
+              createGraph("shape_"+sh+"_exp_"+exp,t_obj,c_obj)
+
+
+
+          });
+
+    }
+    function exportpro(){
+    window.location.href="api/exportraw";
+    }
+    function getFreq(obj){
+      if (obj==undefined){
+        return 0
+      }
+      else return obj
+    }
+
+    function exportTableToCSV() {
+    var csv = [];
+    var rows = document.querySelectorAll("table tr");
+    sh=document.getElementById("shape").value;
+    gr=document.getElementById("group").value;
+    exp=document.getElementById("exp").value;
+    for (var i = 0; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll("td, th");
+
+        for (var j = 0; j < cols.length; j++)
+            row.push(cols[j].innerText);
+
+        csv.push(row.join(","));
+    }
+
+    // Download CSV file
+    downloadCSV(csv.join("\n"),"shape_"+sh+"_treat_"+gr+"_exp_"+exp +".csv");
+}
+
+function downloadCSV(csv, filename) {
+    var csvFile;
+    var downloadLink;
+
+    // CSV file
+    csvFile = new Blob([csv], {type: "text/csv"});
+
+    // Download link
+    downloadLink = document.createElement("a");
+
+    // File name
+    downloadLink.download = filename;
+
+    // Create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+
+    // Hide download link
+    downloadLink.style.display = "none";
+
+    // Add the link to DOM
+    document.body.appendChild(downloadLink);
+
+    // Click download link
+    downloadLink.click();
+}
+
+function createGraph(companyname,tobj,cobj){
+let phas=1;
+for(phas=1;phas<=6;phas++){
+  t_obj=tobj[phas.toString()];
+  c_obj=cobj[phas.toString()];
+
+  label= Object.keys(t_obj);
+  t_valuelist=Object.values(t_obj);
+  c_valuelist=Object.values(c_obj);
+  let i=0;
+  values=[];
+  //console.log(valuelist[0]["5. volume"]);
+  var ctx = document.getElementById('myCanvas'+phas.toString()).getContext('2d');
+  console.log('myCanvas'+phas.toString())
+  var myLineChart = new Chart(ctx, {
+      type: 'line',
+      fill: false,
+      showLine: true,
+        borderColor: 'rgba(0, 200, 0, 1)',
+      data:{ labels: label,
+        datasets:[{showLine: true,
+        fill: false,
+        borderColor: 'rgba(0, 200, 0, 1)',
+          label:"TREATMENT phase "+phas.toString()+" "+companyname,data:t_valuelist},
+          {showLine: true,
+          fill: false,
+          borderColor: 'rgba(200, 0, 0, 1)',
+          label:"CONTROL phase "+phas.toString()+" "+companyname,
+          data:c_valuelist}]},
+      options: {
+    tooltips: {
+      mode: 'index',
+      intersect: true,
+    },
+    hover: {
+      mode: 'nearest',
+      intersect: true
+    },
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero:true
+        }
+      }]
+    },
+  }
+  });
+
+}
+
+;}
+
+    </script>
+</body>
+</html>

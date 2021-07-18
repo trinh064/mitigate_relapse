@@ -1,0 +1,265 @@
+﻿<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+  span.fail{
+  color: red;
+  padding: 2px 2px;
+  margin-left: 400px ;
+  border: 1px solid white;
+  height: 12px;
+  width: 60px;
+ 
+  }
+
+  </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+          <li><a href="/"><b>Home</b></a></li>
+          <li><a href="/contacts"><b>Contacts</b></a></li>
+          <li><a href="/stock"><b>Stock Page</b></a></li>
+          <li ><a href="/"><b id="uname">Welcome</b></a></li>
+          <li><a href="/api/logout"><b><img src="./icon.png" width="30" height="20"></b></a></li>
+          <li ><a href="/api/export"><b id="export">Export</b></a></li>
+        </ul>
+      </div>
+    </nav>
+    <br><br>
+    <button type="button" onclick="addContact()" style="margin-left:350px">+ Add Contact</button>
+    
+    <span class="fail"></span>
+    <div class="container">
+      <table class="table" id="contactsTable">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Category</th>
+            <th scope="col">Location</th>
+            <th scope="col">Contact Information</th>
+            <th scope="col">Email</th>
+            <th scope="col">Website <br> (URL) </th>
+            <th scope="col">Management</th>
+          </tr>
+        </thead>
+        <tbody><tr><td>aaaaaaa</td></tr></tbody>
+      </table>
+    </div>
+    <script type="text/javascript">
+     /* TODO Fill this script in with a request to your server to GET contacts.json
+     /  and display it in the contactsTable.
+
+     /*/
+
+var xhttp = new XMLHttpRequest();
+xhttp.open("GET", "/api/contactsinfo", true);
+xhttp.send();
+var doc="";
+
+ xhttp.onreadystatechange = function() {
+   if (this.readyState == 4 && this.status == 200) {
+     res=this.responseText;
+     console.log(res);
+      var obj = JSON.parse(res);
+      var i;
+      for (i=0;i<obj.length;i++){
+     
+		doc+='<tr id=\''+obj[i].name+'\' >';
+		doc+='<td>'+ obj[i].name+'</td>';
+		doc+='<td>'+ obj[i].category+'</td>';
+      doc+='<td>'+ obj[i].location+'</td>';
+		doc+='<td>'+ obj[i].contact_info+'</td>';
+		doc+='<td>'+ "<a href=" +"\"mailto:"+ obj[i].email+"\">"+obj[i].email +'</a>'+'</td>';
+		doc+='<td>'+ "<a href=" +"\""+ obj[i].website_url+"\">"+obj[i].website_url +'</a>'+'</td>';
+		doc+='<td>'+ "<button type=\"button\" onclick=editContact(\'" + encodeURIComponent(obj[i].name) + "\')>Edit</button>";
+		doc+= "<button type=\"button\" onclick=deleteContact(\'" + encodeURIComponent(obj[i].name) + "\')>Delete</button>" +'</td>';
+		//doc+='<td>'+ obj[i].website_url+'</td>';
+ 		doc+='</tr>';
+		}
+		
+		document.getElementsByTagName("tbody")[0].innerHTML=doc;
+		//$("#contactsTable > tbody").text(doc);	
+   }}
+$.get("/api/getuser",
+    {},
+    function(data,status){
+    console.log(data);
+    document.getElementById("uname").innerHTML="Welcome "+data;
+    }); 
+ 
+var canadd=1;   
+var canedit=1;
+
+function addContact () {
+if(canadd)
+	{body=document.getElementsByTagName("tbody")[0].innerHTML;
+
+	var add='<tr id=\'newcontact\'>' +            
+                    '<td> '+
+                        '<input type=\"text\" class=\"form-control\" name=\"name\" required>'+
+                    '</td>'+                  
+                    '<td>' +                    
+                          '<select class=\"form-control\" name=\"category\">'+
+                              '<option>Personal</option>'+
+                              '<option>Academic</option>'+
+                              '<option>Industry</option>'+
+                          '</select>'+
+                    '</td>'+                  
+                    '<td>'+                   
+                        '<input type=\"text\" class=\"form-control\" name=\"location\" required>'+                     
+                    '</td>'+               
+                    '<td>'+                     
+                        '<input type=\"text\" class=\"form-control\" name=\"contact\" required>'+                    
+                    '</td>'+                 
+                    '<td >'+                    
+                        '<input type=\"email\" class=\"form-control\" name=\"email\" required>'+                  
+                    '</td>'+
+                    '<td>'+                     
+                        '<input type=\"text\" class=\"form-control\" name=\"website_url\" required>'+                   
+                    '<td>'+ "<button type=\"button\" onclick=\"postContacts( )\">Save</button>" +"<button type=\"button\" onclick=\"canceledit()\">Cancel</button>" +'</td>'
+                  '</tr>'
+                  ;
+     document.getElementsByTagName("tbody")[0].innerHTML=body+add; canadd=0;}
+	
+}
+function postContacts(){
+
+
+obj=document.getElementsByClassName("form-control");
+ct_name=obj[0].value;
+ct_cat=obj[1].value;
+ct_loc=obj[2].value;
+ct_info=obj[3].value;
+ct_email=obj[4].value;
+ct_url=obj[5].value;
+if(!checkemail(ct_email)){document.getElementsByClassName("fail")[0].innerHTML="Error! Invalid Email";return;}
+ct_url=obj[5].value;
+if(!checkurl(ct_url)){document.getElementsByClassName("fail")[0].innerHTML="Error! Invalid URL";return;}
+
+if(ct_loc=="" || ct_cat=="" || ct_info=="" ){document.getElementsByClassName("fail")[0].innerHTML="Error! All fields must be filled";return;}
+
+$.post("/api/postContactEntry",
+    {
+      name: ct_name,
+    category: ct_cat,
+    location: ct_loc,
+    contact: ct_info,
+    email: ct_email,
+    website: ct_url,
+    website_url: ct_url
+    },
+    function(data,status){
+    console.log(data);
+    if(data=="name existed"){document.getElementsByClassName("fail")[0].innerHTML="Error! Name of contact cannot be duplicated";}
+    else{ 
+    window.location.replace("/contacts");
+    }
+    });
+    
+
+}
+
+function deleteContact(ctname){
+contact=decodeURIComponent(ctname);
+console.log("Name " + contact );
+$.post("/api/delete",
+    {
+      name: contact,
+    },
+    function(data,status){
+      console.log("Name " + data + "\nStatus: " + status);
+       if (status=="success") {
+       		//document.write(data);
+            // data.redirect contains the string URL to redirect to
+            window.location.replace("/contacts");
+            }
+    });
+
+} 
+var oldname=""
+function editContact(ctname){
+contact=decodeURIComponent(ctname);
+obj=document.getElementById(contact);
+oldname=obj.children[0].innerHTML;
+if(canedit){
+canedit=0;
+newhtml="<td>";
+newhtml+='<input type=\"text\" class=\"form-control\" name=\"name\"' + 'value=\"'+ obj.children[0].innerHTML + '\"' +'>';
+newhtml+="</td>";
+
+newhtml+="<td>";
+newhtml+='<select class=\"form-control\" name=\"category\">'+
+                              '<option>Personal</option>'+
+                              '<option>Academic</option>'+
+                              '<option>Industry</option>'+
+                          '</select>';
+newhtml+="</td>";
+
+newhtml+="<td>";
+newhtml+='<input type=\"text\" class=\"form-control\" name=\"location\"' + 'value=\"'+ obj.children[2].innerHTML + '\"' +'>';
+newhtml+="</td>";
+
+newhtml+="<td>";
+newhtml+='<input type=\"text\" class=\"form-control\" name=\"contact\"' + 'value=\"'+ obj.children[3].innerHTML + '\"' +'>';
+newhtml+="</td>";
+
+newhtml+="<td>";
+newhtml+='<input type=\"email\" class=\"form-control\" name=\"email\"' + 'value=\"'+ obj.children[4].children[0].innerHTML + '\"' +'>';
+newhtml+="</td>";
+
+newhtml+="<td>";
+newhtml+='<input type=\"url\" class=\"form-control\" name=\"website_url\"' + 'value=\"'+ obj.children[5].children[0].innerHTML + '\"' +'>';
+newhtml+="</td>";
+
+newhtml+='<td>'+ "<button type=\"button\" onclick=update(\'" + encodeURIComponent(contact) + "\')>Save</button>";
+newhtml+= "<button type=\"button\" onclick=canceledit()>Cancel</button>" +'</td>';
+obj.innerHTML=newhtml;}
+} 
+function checkemail (email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+function checkurl(url) {
+  return /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/.test(url);
+}
+function update(ctname){
+obj=document.getElementsByClassName("form-control");
+ct_name=obj[0].value;
+ct_cat=obj[1].value;
+ct_loc=obj[2].value;
+ct_info=obj[3].value;
+ct_email=obj[4].value;
+if(!checkemail(ct_email)){document.getElementsByClassName("fail")[0].innerHTML="Error! Invalid Email";return;}
+ct_url=obj[5].value;
+if(!checkurl(ct_url)){document.getElementsByClassName("fail")[0].innerHTML="Error! Invalid URL";return;}
+if (ct_name != oldname){document.getElementsByClassName("fail")[0].innerHTML="Error! Cannot modify name of a contact";return;}
+if(ct_loc=="" || ct_cat=="" || ct_info=="" ){document.getElementsByClassName("fail")[0].innerHTML="Error! All fields must be filled";return;}
+$.post("/api/updateentry",
+    {
+      name: ct_name,
+    category: ct_cat,
+    location: ct_loc,
+    contact: ct_info,
+    email: ct_email,
+    website: ct_url,
+    website_url: ct_url
+    },
+    function(data,status){
+      window.location.replace("/contacts");
+    });
+  
+}
+function canceledit(){
+canedit=1;
+canadd=1;
+ window.location.replace("/contacts");
+}
+
+    </script>
+  </body>
+</html>

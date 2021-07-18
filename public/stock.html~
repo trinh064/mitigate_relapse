@@ -1,0 +1,132 @@
+﻿<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+  <style>
+      textarea {
+          width: 100%;
+          min-height: 30rem;
+          background-color: black;
+          font-family: "Lucida Console", Monaco, monospace;
+          font-size: 0.75 rem;
+          line-height: 1.2;
+          color: #fff;
+      }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+   	<div class="container-fluid">
+      <ul class="nav navbar-nav">
+         <li><a href="/"><b>Home</b></a></li>
+          <li><a href="/contacts"><b>Contacts</b></a></li>
+          <li><a href="/stock"><b>Stock Page</b></a></li>
+          <li ><a href="/"><b id="uname">Welcome</b></a></li>
+          <li><a href="/api/logout"><b><img src="./icon.png" width="30" height="20"></b></a></li>
+          <li ><a href="/api/export"><b id="export">Export</b></a></li>
+      </ul>
+  	</div>
+	</nav>
+  <br><br>
+
+  <div class="container">
+    <div class="panel panel-default">
+      <div class="panel-body"><center>Welcome to Stock Page</center></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <table class="table table-bordered table-hover">
+          <tbody>
+            <tr>
+              <td class="col-md-6">Company</td>
+              <td class="col-md-6">
+                <div class="form-group">
+                  <select name="Company">
+                    <option value="GME">Gamestop</option>
+                    <option value="MSFT">Microsoft</option>
+                    <option value="BA">Boeing Company</option>
+                    <option value="AAPL">Apple Inc</option>
+                    <option value="AMZN">Amazon</option>
+                    <option value="NVDA">NVIDIA Corporation</option>
+                  </select>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <button type="button" onclick="getData()">Get Data</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+      <div id="chartContainer">
+        <canvas id="myCanvas" width="1100" height="500" ></canvas>
+      </div>
+  </div>
+
+  <div class="container">
+    <table class="table" id="StockData">
+      <thead>
+        <tr>
+          <th scope="col">Company-MetaData</th>
+          <th scope="col">Stock-Info</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+function createGraph(companyname,obj){
+
+label= Object.keys(obj);
+valuelist=Object.values(obj);
+var i=0;
+values=[];
+for (i=0;i<valuelist.length;i++){values.push(valuelist[i]["2. high"]);}
+//console.log(valuelist[0]["5. volume"]);
+var ctx = document.getElementById('myCanvas').getContext('2d');
+
+var myLineChart = new Chart(ctx, {
+    type: 'line',
+    data:{ labels: label, datasets:[{label:companyname,data:values}]} 
+})
+
+;}
+  async function getData(){
+  link="https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=XXX&apikey=2CN5CTK5P0CSAKR6";
+ 
+  link=link.replace('XXX',document.getElementsByName('Company')[0].value);
+   console.log(link);
+  const response = await fetch(link);
+  const obj = await response.json(); //extract JSON from the http response
+	graphdata= obj["Time Series (Daily)"];
+	companyname=document.getElementsByName('Company')[0].value;
+  createGraph(companyname,graphdata);
+	var meta="";  
+  meta+='<tr>';
+	meta+='<td>'+ JSON.stringify(obj["Meta Data"],null,2)+'</td>';
+	meta+='<td>'+ JSON.stringify(obj["Time Series (Daily)"],null,2).substring(0,200)+'</td>';
+	meta+='</tr>';
+		document.getElementsByTagName("tbody")[1].innerHTML=meta;
+  // do something with myJson 
+  console.log(obj);
+   }
+  </script>
+</body>
+</html>

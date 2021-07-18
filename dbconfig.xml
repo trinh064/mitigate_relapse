@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dbconfig>
+  <connectionlimit>100</connectionlimit>
+  <host>us-cdbr-east-03.cleardb.com</host>
+  <user>b37fcec36530b3</user>
+  <password>20aa747a</password>
+  <database>heroku_4f8ca48fac41ab4</database>
+  <port>3306</port>
+</dbconfig>
+

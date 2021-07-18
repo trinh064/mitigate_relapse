@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+
+    <div id="main">
+      <div id="header">
+          <ul id="nav">
+              <li><a href="/">Admin</a></li>
+              <li><a href="/begin">Start</a></li>
+          </ul>
+      </div>
+
+        <div id="content">
+            <div class="content-scores">
+              <p id="timer"></p>
+              <p id="phase"></p>
+              <p id="demo">Scores: 0</p>
+              <p id="bonus" style="visibility:hidden;font-size:25px;color:red">+1</p>
+            </div>
+
+            <div class="content-box">
+            </div>
+        </div>
+
+        <div id="footer">
+        </div>
+    </div>
+
+    <script>
+    var sequence=[];
+    var timer=72*60;
+    var count = 0;
+    var rightshapes=[];
+    var ph = 0;
+    var time_score = 72*60;
+    var t_click = 0;
+    var img_click = '';
+    var img_bf1 = '';
+    var img_bf = '';
+    var showimg=[];
+
+    var variableinterval=[8,9,10,11,12];
+    var time_scorelist=[];
+    var interval=0;
+    var ss=0;
+    var t_ss=0;
+    var uname=getCookie("uname");
+    console.log(uname);
+    var mode=0;
+    var reinforcement=0;
+    var exp=1;
+    var resurgence_first=getRandomInt(2);
+    var rrate1=10;
+    var rrate3=10;
+    console.log("Group "+mode.toString()+" Experiment "+exp.toString())
+
+    $.get("/api/getRate1",
+        {},
+        function(data,status){
+
+        rrate1=parseFloat(data);
+        console.log(rrate1);
+        });
+    $.get("/api/getRate3",
+            {},
+            function(data,status){
+
+            rrate3=parseFloat(data);
+            console.log(rrate3);
+            });
+
+
+    sq = '<img onclick="userclick(this)" src="./assets/img/square.png" alt="sq" style="width:60px" onmouseover="enlarge(this)" onmouseout="normal(this)">';
+    tr = '<img onclick="userclick(this)" src="./assets/img/triangle.png" alt="tr" style="width:60px" onmouseover="enlarge(this)" onmouseout="normal(this)"  >';
+    di = '<img onclick="userclick(this)" src="./assets/img/diamond.png" alt="di" style="width:60px " onmouseover="enlarge(this)" onmouseout="normal(this)">';
+    ci = '<img onclick="userclick(this)" src="./assets/img/circle.png" alt="ci" style="width:60px" onmouseover="enlarge(this)" onmouseout="normal(this)">';
+
+    var position = [[sq,'',tr,di,'','',ci,''],[sq,'',tr,ci,'','',di,''],[sq,'',ci,di,'','',tr,''],[sq,'',ci,tr,'','',di,''],[sq,'',di,tr,'','',ci,''] ,[sq,'',di,ci,'','',tr,'']];
+    var context=["blue","yellow","purple","orange"];
+    var bg=context[0];
+    box=document.getElementsByClassName("content-box")[0];
+    var x = setInterval(function() {
+    document.getElementById("timer").innerHTML=timer;
+    switch(timer){
+      case 72*60: phase1(); break;
+      case 60*60: phase2(); break;
+      case 48*60: if (resurgence_first) {phase3();} else {phase6();} break;
+      case 36*60: phase4(); break;
+      case 24*60: phase5(); break;
+      case 12*60: if (resurgence_first) {phase6();} else {phase3();} break;}
+      timer-=1;
+      if(timer<0){clearInterval(x);}    },20);
+
+    function breakpage(){
+      if (timer<=30){
+        submitData();
+        box.innerHTML="Your answers have been submitted, thank you for participating!";}
+      else
+      { box.innerHTML="The program will resume momentarily";}
+      box.style.backgroundColor="white";
+    }
+
+    function phase(name,tag_img,right_shapes,phase) {
+      document.getElementById("phase").innerHTML= name;
+      showimg=tag_img;
+      var tp=12*60;
+      rightshapes = right_shapes;
+      ph=phase;
+      var p_clock=setInterval(function() {
+      switch(tp){
+        case 12*60: session(1,tag_img); break;
+        case 10.5*60: breakpage();break;
+        case 10*60:session(2,tag_img);break;
+        case 8.5*60: breakpage();break;
+        case 8*60: session(3,tag_img);break;
+        case 6.5*60: breakpage();break;
+        case 6*60: session(4,tag_img);break;
+        case 4.5*60: breakpage();break;
+        case 4*60: session(5,tag_img);break;
+        case 2.5*60: breakpage();break;
+        case 2*60: session(6,tag_img);break;
+        case 0.5*60: breakpage();break;}
+        tp-=1;
+        t_ss+=1;
+        if(tp<0){clearInterval(p_clock);}    },20);
+      }
+
+    function session(x,tag_img){
+      time_score = 72*60;
+      t_click = 0;
+      img_click = '';
+      img_bf = '';
+      img_bf1 = '';
+      interval=0;
+      time_scorelist=[];
+      t_ss=0
+
+      ss=x;
+      if(ph==6){bg=context[1];} else {bg=context[0];}
+      display(tag_img,bg);
+    }
+
+      function display(tag_img,bgcolor){
+        placeshapes(tag_img);
+        box.style.backgroundColor=bgcolor;
+      }
+
+      function placeshapes(tag_img){
+        conttent = '';
+        for (element of tag_img) {
+          conttent = conttent + '<div class="item" >'+ element + '</div>';
+        }
+        box.innerHTML=conttent;
+      }
+
+
+    function phase1() {
+
+      phase("Baseline",[sq,'','','','','','',''],["sq"],1)
+    }
+    function phase2() {
+
+      phase("Differential reinforcement",[sq,'',tr,di,'','',ci,''],["tr"],2);
+    }
+    function phase3() {
+          phase("Test of resurgence",[sq,'',tr,di,'','',ci,''],[],3);
+
+    }
+    function phase4(){
+
+      phase("Baseline",[sq,'','','','','','',''],["sq"],4);
+    }
+    function phase5(){
+
+      phase("Differential reinforcement",[sq,'',tr,di,'','',ci,''],["tr"],5);
+
+    }
+    function phase6(){
+          phase("Test of renewal",[sq,'',tr,di,'','',ci,''],["tr"],6);
+
+    }
+
+
+        function userclick(image) {
+          //sequence.push(image.alt);
+          //console.log(sequence);
+
+          t_click=timer;
+          img_click = image.alt;
+          if (rightshapes.includes(image.alt)){
+            if (ph == 1 ){
+              if ((time_score-t_click) >= interval ) {
+                time_score = t_click;
+                  time_scorelist.push(time_score);
+                    console.log("Average: " +averageinterval(time_scorelist))
+                    interval=variableinterval[getRandomInt(variableinterval.length)];
+                reward();
+              }
+
+            }
+
+            if (ph == 2 ) {
+
+              if ((time_score - t_click) >= rrate1){
+                reward();
+              }
+            }
+
+            if (ph == 4 ){
+
+              if ((time_score - t_click) >= interval ) {
+                time_score = t_click;
+                console.log(time_score);
+                interval=variableinterval[getRandomInt(variableinterval.length)];
+                reward();
+              }
+            }
+
+            if (ph == 5 ) {
+
+              if ((time_score - t_click) >= rrate1){
+                reward();
+              }
+            }
+
+            if (ph == 6 ) {
+              if ((time_score - t_click) >= rrate1){
+                reward();
+              }
+            }
+          }
+          sequence.push("(\'"+uname+"\',"+mode+','+exp+','+ph+','+ss+","+t_ss+",\'"+image.alt+"\',"+reinforcement+')');
+          console.log(sequence);
+          reinforcement=0;
+        }
+        function reward(){
+          reinforcement=1;
+          if (showimg.includes(di)){
+            placeshapes(position[getRandomInt(6)]);
+          }
+          rewardSound = new Audio("bell2.mp3");
+          rewardSound.play();
+          count += 1;
+          document.getElementById("demo").innerHTML = "Scores: " + count;
+          document.getElementById("bonus").style.visibility="visible";
+          $("#bonus").show(0, function() {
+              $("#bonus").fadeOut();});
+        }
+        function enlarge(x){
+              x.style.transition="0.3s";
+              x.style.width = "72px";
+              x.style.height = "96px";
+            }
+        function normal(x){
+              x.style.transition="0.3s";
+              x.style.width = "60px";
+              x.style.height = "80px";
+            }
+        function getRandomInt(max) {
+              return Math.floor(Math.random() * max);
+        }
+        function averageinterval(arr){
+          inter=[];
+          if (arr.length<=1){return 0;}
+          for (let i=0;i<arr.length-1;i++){
+            inter.push(arr[i]-arr[i+1]);
+          }
+          sum=0;
+          console.log("Intervals: " + inter);
+          for (let i=0;i<inter.length;i++){
+            sum+=inter[i];
+          }
+          return sum/inter.length
+
+        }
+
+        function submitData(){
+          tosendData="";
+          for (let i=0;i<sequence.length;i++){
+            tosendData+=sequence[i];
+            if(i!=sequence.length-1){
+                tosendData+=','
+            }
+          }
+          console.log(tosendData)
+          $.post("/api/submitData",
+              {responselist:tosendData},
+              function(data,status){
+                window.location.href="/begin";
+              });
+        }
+
+        function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+    </script>
+</body>
+</html>

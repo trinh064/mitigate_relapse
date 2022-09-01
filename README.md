@@ -11,6 +11,6 @@ MySQL <br>
 uname: admin$ <br>
 pass: admin% <br>
 
-Contact researchers:
-Emily Unholz-Bowden unholz (unhol003@umn.edu)
+Contact researchers:  <br>
+Emily Unholz-Bowden (unhol003@umn.edu)  <br>
 https://news.cehd.umn.edu/unholz-bowden-special-ed-phd-student-awarded-seab-grad-student-translational-research-grant/

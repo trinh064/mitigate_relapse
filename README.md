@@ -3,9 +3,9 @@
 
 Built from scratch a full stack application for psychology research on mitigate relapsing. <br>
 • Implemented the experiment logic involving moving shapes in different patterns and recording users’ clicks
-on the front-end using HTML and JavaScript.
+on the front-end using HTML and JavaScript. <br>
 • Installed server and database on researcher’s local machine to handle API requests with NodeJS and
-MySQL
+MySQL <br>
 • Piped data to separate Python processes to handle complex data wrangling with Pandas library <br>
 
 uname: admin$ <br>
